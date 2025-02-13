@@ -2,6 +2,7 @@ package org.example;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 
 public class ClientGUI extends JFrame {
     private static final int WIDTH = 400;
@@ -21,6 +22,7 @@ public class ClientGUI extends JFrame {
     private final JButton btnSend = new JButton("Send");
 
     private final JList<String> userList = new JList<>();
+    private final JTextArea chatLog = new JTextArea();
     private final JScrollPane userListScroll = new JScrollPane(userList);
 
     public ClientGUI(ServerWindow server){
@@ -45,33 +47,61 @@ public class ClientGUI extends JFrame {
         log.setEditable(false);
         JScrollPane scrollLog = new JScrollPane(log);
         add(scrollLog);
-        setVisible(true);
-
-        btnSend.addActionListener(e -> sendMessage());
-        tfMessage.addActionListener(e -> sendMessage());
-
-        // Настройка списка пользователей
-        setupUserList();
 
         // Изменяем компоновку для добавления списка пользователей
         getContentPane().add(userListScroll, BorderLayout.EAST);
+
+        // Убираем поле tfLogin
+        panelTop.remove(tfLogin);
+        setupUserList();
+
+        // Настройка списка пользователей
+        userList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        userList.setLayoutOrientation(JList.VERTICAL);
+        userList.setVisibleRowCount(4);
+
+        // Добавляем область чата
+        chatLog.setEditable(false);
+        JScrollPane chatScroll = new JScrollPane(chatLog);
+        add(chatScroll, BorderLayout.CENTER);
+
+        // Обработчики событий
+        btnSend.addActionListener(this::sendMessage);
+        tfMessage.addActionListener(this::sendMessage);
+
+        setVisible(true);
     }
-    private void sendMessage() {
-        String message = tfMessage.getText().trim();
-        if (!message.isEmpty() && server != null) {
-            String login = tfLogin.getText();
-            server.appendToLog(login + ": " + message);
-            tfMessage.setText("");
-        }
-    }
+
     private void setupUserList() {
-        // Заполняем список тестовыми данными
         String[] users = {"Алиса", "Боб", "Чарли", "Диана", "Эвелин"};
         userList.setListData(users);
-
-        // Настройка внешнего вида
+        userList.setSelectedIndex(0); // Выбираем пользователя по умолчанию
         userList.setBackground(new Color(240, 240, 240));
-        userListScroll.setPreferredSize(new Dimension(120, 0));
-        userListScroll.setBorder(BorderFactory.createTitledBorder("Online Users"));
+        userListScroll.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder("Выберите пользователя"),
+                BorderFactory.createEmptyBorder(5,5,5,5)));
+    }
+    
+
+    public void sendMessage(ActionEvent e) {
+        String message = tfMessage.getText().trim();
+        if (message.isEmpty()) return;
+
+        String selectedUser = userList.getSelectedValue();
+        if (selectedUser == null) {
+            JOptionPane.showMessageDialog(this,
+                    "Выберите пользователя из списка!",
+                    "Ошибка",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String fullMessage = selectedUser + ": " + message;
+
+        // Добавляем сообщение в клиентский и серверный лог
+        chatLog.append(fullMessage + "\n");
+        server.appendToLog(fullMessage);
+
+        tfMessage.setText("");
     }
 }
