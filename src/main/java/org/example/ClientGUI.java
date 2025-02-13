@@ -17,7 +17,6 @@ public class ClientGUI extends JFrame implements ClientView {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setSize(400, 300);
 
-        // Инициализация компонентов
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(createUserListPanel(), BorderLayout.EAST);
         mainPanel.add(createChatPanel(), BorderLayout.CENTER);
@@ -42,7 +41,6 @@ public class ClientGUI extends JFrame implements ClientView {
     private JPanel createInputPanel() {
         JTextField tfMessage = new JTextField();
         JButton btnSend = new JButton("Send");
-
         btnSend.addActionListener(this::handleSendAction);
         tfMessage.addActionListener(this::handleSendAction);
 
@@ -53,12 +51,11 @@ public class ClientGUI extends JFrame implements ClientView {
     }
 
     private void handleSendAction(ActionEvent e) {
-        if(controller != null) {
+        if (controller != null) {
             controller.onSendButtonClick();
         }
     }
 
-    // Реализация методов интерфейса ClientView
     @Override
     public void showMessage(String message) {
         chatLog.append(message + "\n");
@@ -82,29 +79,16 @@ public class ClientGUI extends JFrame implements ClientView {
     @Override
     public String getMessageInput() {
         JPanel panel = (JPanel) getContentPane().getComponent(0);
-
-        // Приводим третий компонент внутри панели к Container
         Container container = (Container) panel.getComponent(2);
-
-        // Получаем первый компонент внутри контейнера и приводим его к JTextField
         JTextField textField = (JTextField) container.getComponent(0);
-
-        // Возвращаем текст из текстового поля
         return textField.getText();
     }
 
     @Override
     public void clearMessageInput() {
-        // Приводим первый компонент к JPanel
         JPanel panel = (JPanel) getContentPane().getComponent(0);
-
-        // Приводим третий компонент внутри панели к Container
         Container container = (Container) panel.getComponent(2);
-
-        // Получаем первый компонент внутри контейнера и приводим его к JTextField
         JTextField textField = (JTextField) container.getComponent(0);
-
-        // Очищаем текстовое поле
         textField.setText("");
     }
 }

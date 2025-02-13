@@ -4,11 +4,11 @@ import javax.swing.*;
 
 public class ClientController {
     private final ClientView view;
-    private final ServerWindow server;
+    private ServerController serverController;
 
-    public ClientController(ClientView view, ServerWindow server) {
+    public ClientController(ClientView view, ServerController serverController) {
         this.view = view;
-        this.server = server;
+        this.serverController = serverController;
         view.setClientController(this);
         initUsers();
     }
@@ -22,7 +22,7 @@ public class ClientController {
         String user = view.getSelectedUser();
         String message = view.getMessageInput().trim();
 
-        if(user == null || user.isEmpty()) {
+        if (user == null || user.isEmpty()) {
             JOptionPane.showMessageDialog(null,
                     "Выберите пользователя из списка!",
                     "Ошибка",
@@ -30,11 +30,19 @@ public class ClientController {
             return;
         }
 
-        if(!message.isEmpty()) {
+        if (!message.isEmpty()) {
             String formattedMessage = user + ": " + message;
-            server.appendToLog(formattedMessage);
-            view.showMessage(formattedMessage);
-            view.clearMessageInput();
+            serverController.appendMessage(formattedMessage); // Отправляем сообщение на сервер
+            view.showMessage(formattedMessage);               // Отображаем сообщение у клиента
+            view.clearMessageInput();                        // Очищаем поле ввода
         }
+    }
+
+    public void onSystemMessage(String message) {
+        view.showMessage(message); // Отображаем системное сообщение в клиентском чате
+    }
+
+    public void setServerController(ServerController serverController) {
+        this.serverController = serverController;
     }
 }
